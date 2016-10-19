@@ -2,14 +2,14 @@
 
 Docker and docker-compose are used for running code samples:
 
-      * docker version 1.12.2
-      * docker-compose 1.8.1
+      docker version 1.12.2
+      docker-compose 1.8.1
       
-      * For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
+      For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
 
 For building the app, MAVEN is used      
       
-      * MAVEN 3.3.9 Embeded Eclipse version
+      MAVEN 3.3.9 Embeded Eclipse version
 
 
 
