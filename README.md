@@ -20,24 +20,26 @@ Depending on one's needs virtual machine memory could be adjusted to different v
 docker-machine and launch docker images:  
 
       docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-demo
-      eval "$(docker-machine env workshop)"
+      eval "$(docker-machine env smack-demo)"
       
-      docker-machine start workshop : to start default machine
+      docker-machine start smack-demo : to start default machine
 	  
-	  docker-machine env workshop   
+	  docker-machine env smack-demo   
 
-      docker-compose up -d :This command will bring up the images also it might take a little while since it downloads all the images  
+      docker-compose up -d : Execute this command in root directory containing docker-compose.yml file
       
       docker ps            : This Command will will display the currently running container
       
-      winpty docker  exec -ti dataenggsmack_hadoop_1 bash : For windows user they can using this command for connecting to container all linux user can run this minus winpty 
+      winpty docker  exec -ti smackstack_hadoop_1 bash : For windows user they can using this command for connecting to container all linux user can run this minus winpty 
       
-      winpty docker  exec -ti dataenggsmack_cassandra_1 bash
+      winpty docker  exec -ti smackstack_cassandra_1 bash
 
 After that dockerized Cassandra, MongoDB and single-node Hadoop cluster will launched. `docker ps` 
-could be used for verification and getting ids of containers. After a short delay all UI components should be accessible via browser (except SparkUI).
+could be used for verification and getting ids of containers.
 
-Project build directory is linked to hadoop container and available at `/target` `/dataset` folder. Every time fatjar is rebuilt it is visible inside the container.
+Project build directory is linked to hadoop container and available at `/target` `/dataset` folder. 
+
+Every time fatjar is rebuilt it is visible inside the container.
 
 For shutting down with deletion of all the data use `docker-compose down`
       
@@ -56,7 +58,7 @@ untar the file and copy all the json file and store it 'data-set' folder in proj
 ###Loading data to HDFS
 * winpty docker  exec -ti  smackstack_hadoop_1 bash
 
-* hadoop fs -put data-set/* .
+* hadoop fs -put data-set/*.json .
       
 ###Create keyspace in cassandra database
 * winpty docker  exec -ti  smackstack_cassandra_1 bash
