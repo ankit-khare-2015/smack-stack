@@ -39,7 +39,7 @@ class CassandraRowWrapper(row: CassandraRow) {
 	
 		def toYelpBusiness = {
 		  	YelpBusiness(
-					business_id = row.getString("business_id"),
+		  	  business_id = row.getString("business_id"),
 					full_address = row.getString("full_address"),
 					city= row.getString("city"),
 					review_count= row.getLong("review_count"),
