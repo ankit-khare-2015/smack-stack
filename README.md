@@ -70,7 +70,7 @@ create keyspace by running below command
 * CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
 
       
-## To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
+### To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
 
             
       spark-shell \
