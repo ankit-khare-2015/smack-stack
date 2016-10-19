@@ -9,13 +9,7 @@ class YelpDataModel {
 }
 
 case class YelpTip(user_id:String,text:String,business_id:String,likes:Long,date:String,type_1:String)
-//case class Monday(open:String, close:String)
-//case class Tuesday(open:String, close:String)
-//case class Wednesday(open:String, close:String)
-//case class Thrusday(open:String, close:String)
-//case class Friday(open:String, close:String)
-//case class Hours(Monday:Monday,Tuesday:Tuesday,Wednesday:Wednesday,Thrusday:Thrusday,Friday:Friday,open:Boolean)
-case class Neighbourhoods()
+
 case class YelpBusinessCategories(business_id:String ,cat:Seq[String])
 
 case class YelpBusiness(
