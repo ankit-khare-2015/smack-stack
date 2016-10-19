@@ -23,7 +23,7 @@ object YelpTipDataLoader {
 	}
 	
 	def getTableDef():TableDef ={
-	  val tipTableDef = TableDef.fromType[YelpTip]("yelp_data","tips_scala")
+	  val tipTableDef = TableDef.fromType[YelpTip]("yelp_data","tip")
 	  return tipTableDef 
 	}
 	

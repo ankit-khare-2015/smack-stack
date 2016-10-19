@@ -17,7 +17,7 @@ object YelpTipQueryLoader {
    
    def queryYelpTipsLoader()={
 	   import SContext.sqlContext.implicits._
-     SContext.sc.cassandraTable("yelp_data", "tips")
+     SContext.sc.cassandraTable("yelp_data", "tip")
      .map(_.toYelpTip)
      .toDF()
      .registerTempTable("yelp_tips")
@@ -27,22 +27,29 @@ object YelpTipQueryLoader {
      
      val report =
          s"""
-            |Yelp Tips report containing bad keyword:
+            |################################ Yelp Tips report containing bad keyword ##################
+            |
             |
             |Top 10 yelp tips in real-time store:
             |${yelp_tips.mkString("\n")}
             |
+            |
+            |############################################################################################
          """.stripMargin
 
       println(report)
       
           val likesReport =
          s"""
-            |Yelp Tips report containing likes > 0:
+            |##################################Yelp Tips report containing likes > 2 ###################
+            |
             |
             |Top 10 yelp tips in real-time store:
+            |
             |${yelp_like.mkString("\n")}
             |
+            |
+            |###########################################################################################
          """.stripMargin
 
       println(likesReport)
@@ -61,11 +68,15 @@ object YelpTipQueryLoader {
      
      val report =
          s"""
-            |Yelp Business report containing business having stars > 3
+            |######################Yelp Business report containing business having stars > 4 ############
+            |
             |
             |Top 10 yelp business :
+            |
             |${yelp_business.mkString("\n")}
             |
+            |
+            |#############################################################################################
          """.stripMargin
 
       println(report)
@@ -90,11 +101,15 @@ object YelpTipQueryLoader {
      
      val report =
          s"""
-            |Yelp Business report containing business having stars > 3
+            |################################## Yelp top 10 categories containing business having stars > 3 ###
+            |
+            |Yelp Business report 
             |
             |Top 10 yelp business :
             |${yelp_business.mkString("\n")}
             |
+            |
+            |##################################################################################################
          """.stripMargin
 
       println(report)

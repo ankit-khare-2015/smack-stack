@@ -12,7 +12,7 @@ object YelpBusinessDataLoader {
 
 
 	def main(args : Array[String]) {
-	//	saveRddToCaccendra(getRdd(loadJsonFile("yelp_academic_dataset_business.json")), getTableDef())
+		saveRddToCaccendra(getRdd(loadJsonFile("yelp_academic_dataset_business.json")), getTableDef())
 		saveBusinessCatRddToCaccendra(getBusinessCatRdd(loadJsonFile("yelp_academic_dataset_business.json")), getBusinessCategoriesTableDef())
 	}
 

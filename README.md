@@ -19,7 +19,7 @@ For building the app, MAVEN is used
 Depending on one's needs virtual machine memory could be adjusted to different value, but memory should be more than 2GB. Steps to create new 
 docker-machine and launch docker images:  
 
-      docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-stack-demo
+      docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-demo
       eval "$(docker-machine env workshop)"
       
       docker-machine start workshop : to start default machine
@@ -47,15 +47,27 @@ To run and submit Spark Applications from this project the fatjar should be asse
 Logging in to Docker container
       
       #container name could be used to login
-      docker exec -ti sparkworkshop_hadoop_1 bash (in linux env)
+      docker exec -ti smackstack_hadoop_1 bash (in linux env)
        
-      winpty docker  exec -ti  dataenggsmack_hadoop_1 bash (in windows)
-      
-Loading data to HDFS
-winpty docker  exec -ti  dataenggsmack_hadoop_1 bash
+      winpty docker  exec -ti  smackstack_hadoop_1 bash (in windows)
 
-hadoop fs -put data-set/*
+##Initial Setup
+Download the yelp data tar file https://www.yelp.com/dataset_challenge/dataset
+untar the file and copy all the json file and store it 'data-set' folder in project root directory since it has been mounted in docker-compose-yml     
+#Loading data to HDFS
+winpty docker  exec -ti  smackstack_hadoop_1 bash
+
+hadoop fs -put data-set/* .
       
+#Create keyspace in cassandra database
+winpty docker  exec -ti  smackstack_cassandra_1 bash
+
+open cassandra shell by executing  'cqlsh' cmd
+
+create keyspace by running below command
+
+CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+
       
 Running Spark shell with fatjar in classpath will allow to execute applications right from spark-shell 
             
@@ -64,7 +76,7 @@ Running Spark shell with fatjar in classpath will allow to execute applications 
       --deploy-mode client \
       --executor-cores 1 \
       --num-executors 2 \
-      --jars /target/spark-workshop.jar \
+      --jars /target/data-engg-smack-0.0.1-SNAPSHOT-shaded.jar \
       --conf spark.cassandra.connection.host=cassandra
 	  --class packagename.classname	
       
@@ -77,23 +89,46 @@ and in Cassandra and MongoDB.
 
 * __YelpBusinessDataLoader__ - SOME text: `classname.method` 
 * __YelpTipDataLoader__ - SOME TEXT  `classname.method` 
-* __YelpTipQueryLoader__ - SparkSQL based implementation using DataFrame API and Cassandra as a data source: 
-`CLASSNAME.METHOD(sc, sqlContext)`
+* __YelpTipQueryLoader__ - SparkSQL based implementation using DataFrame API and Cassandra as a data source
 
-__ParametrizedApplicationExample__ could be submitted like that:
-      
-      spark-submit --class io.datastrophic.spark.workshop.ParametrizedApplicationExample \
-      --master yarn \
-      --deploy-mode cluster \
-      --num-executors 2 \
-      --driver-memory 1g \
-      --executor-memory 1g \
-      /target/spark-workshop.jar \
-      --cassandra-host cassandra \
-      --keyspace demo \
-      --table event \
-      --target-dir /workshop/dumps
-      
+## Yelp Data Load steps 
+
+
+# Load Yelp business and categories 
+spark-shell \
+  --master yarn \
+  --class com.newyorker.data_engg.data_engg_smack.YelpBusinessDataLoader \
+  --deploy-mode client \
+  --executor-cores 1 \
+  --num-executors 2 \
+  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
+  --conf spark.cassandra.connection.host=cassandra
+
+#Load Yelp tip data 
+
+spark-shell \
+  --master yarn \
+  --class com.newyorker.data_engg.data_engg_smack.YelpTipDataLoader \
+  --deploy-mode client \
+  --executor-cores 1 \
+  --num-executors 2 \
+  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
+  --conf spark.cassandra.connection.host=cassandra
+  
+  
+##Query Yelp Data
+
+spark-shell \
+  --master yarn \
+  --class com.newyorker.data_engg.data_engg_smack.YelpTipQueryLoader \
+  --deploy-mode client \
+  --executor-cores 1 \
+  --num-executors 2 \
+  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
+  --conf spark.cassandra.connection.host=cassandra
+
+  
+  
       
 ## Data model
 
