@@ -2,14 +2,14 @@
 
 Docker and docker-compose are used for running code samples:
 
-      *docker version 1.12.2
-      *docker-compose 1.8.1
+      * docker version 1.12.2
+      * docker-compose 1.8.1
       
-      *For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
+      * For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
 
 For building the app, MAVEN is used      
       
-      *MAVEN 3.3.9 Embeded Eclipse version
+      * MAVEN 3.3.9 Embeded Eclipse version
 
 
 
@@ -54,18 +54,18 @@ Download the yelp data tar file https://www.yelp.com/dataset_challenge/dataset
 untar the file and copy all the json file and store it 'data-set' folder in project root directory since it has been mounted in docker-compose-yml     
 
 ###Loading data to HDFS
-*winpty docker  exec -ti  smackstack_hadoop_1 bash
+* winpty docker  exec -ti  smackstack_hadoop_1 bash
 
-*hadoop fs -put data-set/* .
+* hadoop fs -put data-set/* .
       
 ###Create keyspace in cassandra database
-*winpty docker  exec -ti  smackstack_cassandra_1 bash
+* winpty docker  exec -ti  smackstack_cassandra_1 bash
 
 open cassandra shell by executing  'cqlsh' cmd
 
 create keyspace by running below command
 
-*CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+* CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
 
       
 ## To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
