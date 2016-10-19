@@ -2,14 +2,14 @@
 
 Docker and docker-compose are used for running code samples:
 
-      docker version 1.12.2
-      docker-compose 1.8.1
+      *docker version 1.12.2
+      *docker-compose 1.8.1
       
-      For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
+      *For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
 
 For building the app, MAVEN is used      
       
-      MAVEN 3.3.9 Embeded Eclipse version
+      *MAVEN 3.3.9 Embeded Eclipse version
 
 
 
@@ -41,8 +41,6 @@ Project build directory is linked to hadoop container and available at `/target`
 
 For shutting down with deletion of all the data use `docker-compose down`
       
-##Running spark-shell with samples
-To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
 
 Logging in to Docker container
       
@@ -54,22 +52,24 @@ Logging in to Docker container
 ##Initial Setup
 Download the yelp data tar file https://www.yelp.com/dataset_challenge/dataset
 untar the file and copy all the json file and store it 'data-set' folder in project root directory since it has been mounted in docker-compose-yml     
-###Loading data to HDFS
-winpty docker  exec -ti  smackstack_hadoop_1 bash
 
-hadoop fs -put data-set/* .
+###Loading data to HDFS
+*winpty docker  exec -ti  smackstack_hadoop_1 bash
+
+*hadoop fs -put data-set/* .
       
 ###Create keyspace in cassandra database
-winpty docker  exec -ti  smackstack_cassandra_1 bash
+*winpty docker  exec -ti  smackstack_cassandra_1 bash
 
 open cassandra shell by executing  'cqlsh' cmd
 
 create keyspace by running below command
 
-CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+*CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
 
       
-Running Spark shell with fatjar in classpath will allow to execute applications right from spark-shell 
+## To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
+
             
       spark-shell \
       --master yarn \
@@ -86,14 +86,14 @@ Running Spark shell with fatjar in classpath will allow to execute applications 
 This application parse and load data from yelp json file through spark and load the data into cassandra keyspace and performs 
 some simple SparkQL query check on business , categories and tip tables created in yelp_data keyspace using spark  
 
-* __YelpBusinessDataLoader__ - SOME text: `classname.method` 
-* __YelpTipDataLoader__ - SOME TEXT  `classname.method` 
+* __YelpBusinessDataLoader__ - This file loads yelp business and categories data in cassandra: `classname.method` 
+* __YelpTipDataLoader__ - This file loads yelp tip data in cassandra keyspace
 * __YelpTipQueryLoader__ - SparkSQL based implementation using DataFrame API and Cassandra as a data source
 
 ## Yelp Data Load steps 
+__Note __ - Load Yelp business and categories  and Load Yelp tip data  should be executed first else there would be come exception while running YelpTipQueryLoader
 
-
-# Load Yelp business and categories 
+### Load Yelp business and categories 
 spark-shell \
   --master yarn \
   --class com.newyorker.data_engg.data_engg_smack.YelpBusinessDataLoader \
@@ -103,7 +103,7 @@ spark-shell \
   --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
   --conf spark.cassandra.connection.host=cassandra
 
-#Load Yelp tip data 
+###Load Yelp tip data 
 
 spark-shell \
   --master yarn \
@@ -115,7 +115,7 @@ spark-shell \
   --conf spark.cassandra.connection.host=cassandra
   
   
-##Query Yelp Data
+###Query Yelp Data
 
 spark-shell \
   --master yarn \
@@ -128,24 +128,13 @@ spark-shell \
 
   
   
-      
-## Data model
-
-Through all the code samples the same Cassandra data model is used:
-
-
-
 ## Data cleanup
       
       #HDFS files
-      docker exec -ti sparkworkshop_hadoop_1  bash 
-      hadoop fs -rm -r /workshop/*
+      docker exec -ti smackstack_hadoop_1  bash 
+      hadoop fs -rm -r /*.json
       
       #Cassandra tables
-      docker exec -ti sparkworkshop_cassandra_1 cqlsh
-      cqlsh> drop keyspace demo;
+      docker exec -ti smackstack_cassandra_1 cqlsh
+      cqlsh> drop keyspace yelp_data;
       
-      #Mongo DB
-      docker exec -ti sparkworkshop_mongo_1 mongo
-      >use demo
-      >db.dropDatabase()
