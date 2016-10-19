@@ -93,7 +93,7 @@ some simple SparkQL query check on business , categories and tip tables created 
 * __YelpTipQueryLoader__ - SparkSQL based implementation using DataFrame API and Cassandra as a data source
 
 ## Yelp Data Load steps 
-__Note__ - Load Yelp business and categories  and Load Yelp tip data  should be executed first else there would be come exception while running YelpTipQueryLoader
+__Note__ - Load _Yelp business and categories_  and _Load Yelp tip data_  should be executed first else there would be come exception while running YelpTipQueryLoader
 
 ### Load Yelp business and categories 
 spark-shell \
