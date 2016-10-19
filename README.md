@@ -16,7 +16,7 @@ For building the app, MAVEN is used
 ##Setting Dockerized Environment
 ### Creating docker-machine and launching containers
 
-Depending on one's needs virtual machine memory could be adjusted to different value, but memory should be more than 2GB. Steps to create new 
+Depending on one's needs virtual machine memory could be adjusted to different value, but memory should be more than 5GB. Steps to create new 
 docker-machine and launch docker images:  
 
       docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-demo
@@ -54,12 +54,12 @@ Logging in to Docker container
 ##Initial Setup
 Download the yelp data tar file https://www.yelp.com/dataset_challenge/dataset
 untar the file and copy all the json file and store it 'data-set' folder in project root directory since it has been mounted in docker-compose-yml     
-#Loading data to HDFS
+###Loading data to HDFS
 winpty docker  exec -ti  smackstack_hadoop_1 bash
 
 hadoop fs -put data-set/* .
       
-#Create keyspace in cassandra database
+###Create keyspace in cassandra database
 winpty docker  exec -ti  smackstack_cassandra_1 bash
 
 open cassandra shell by executing  'cqlsh' cmd
@@ -83,9 +83,8 @@ Running Spark shell with fatjar in classpath will allow to execute applications 
 
 ##List of applications
 
-API examples provide implementation for the "naive lambda" application which reads aggregated data from campaigns data source and groups it with 
-"raw" event data from events data source. After sample data is generated it is available in Json, Parquet and Bson files in HDFS (/workshop dir)
-and in Cassandra and MongoDB. 
+This application parse and load data from yelp json file through spark and load the data into cassandra keyspace and performs 
+some simple SparkQL query check on business , categories and tip tables created in yelp_data keyspace using spark  
 
 * __YelpBusinessDataLoader__ - SOME text: `classname.method` 
 * __YelpTipDataLoader__ - SOME TEXT  `classname.method` 
