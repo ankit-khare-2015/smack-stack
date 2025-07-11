@@ -1,142 +1,190 @@
-##Prerequisites
+# Yelp Data Engineering Project (SMACK Stack)
 
-Docker and docker-compose are used for running code samples:
+This project uses Docker and the SMACK stack (Spark, Mesos, Akka, Cassandra, Kafka) to load Yelp dataset files into a Cassandra database and run SparkSQL queries. It’s a great starting point for data engineering practice.
 
-      docker version 1.12.2
-      docker-compose 1.8.1
-      
-      For Windows machine please install docker tool box https://www.docker.com/products/docker-toolbox
+---
 
-For building the app, MAVEN is used      
-      
-      MAVEN 3.3.9 Embeded Eclipse version
+## 🔧 Prerequisites
 
+### Tools
+- **Docker** (recommended version: ≥ 20.x)
+- **Docker Compose** (recommended version: ≥ 1.29)
+- **Maven** (≥ 3.6, embedded in many IDEs like Eclipse or IntelliJ)
 
+For **Windows users**, install Docker Desktop: [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
 
-##Setting Dockerized Environment
-### Creating docker-machine and launching containers
+---
 
-Depending on one's needs virtual machine memory could be adjusted to different value, but memory should be more than 5GB. Steps to create new 
-docker-machine and launch docker images:  
+## ⚙️ Setting Up the Docker Environment
 
-      docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-demo
-      eval "$(docker-machine env smack-demo)"
-      
-      docker-machine start smack-demo : to start default machine
-	  
-	  docker-machine env smack-demo   
+### 1. Create and Start Docker Machine
 
-      docker-compose up -d : Execute this command in root directory containing docker-compose.yml file
-      
-      docker ps            : This Command will will display the currently running container
-      
-      winpty docker  exec -ti smackstack_hadoop_1 bash : For windows user they can using this command for connecting to container all linux user can run this minus winpty 
-      
-      winpty docker  exec -ti smackstack_cassandra_1 bash
+> Optional: For VirtualBox setups where `docker-machine` is still used:
 
-After that dockerized Cassandra, MongoDB and single-node Hadoop cluster will launched. `docker ps` 
-could be used for verification and getting ids of containers.
+```bash
+docker-machine create -d virtualbox --virtualbox-memory "8000" --virtualbox-cpu-count "4" smack-demo
+eval "$(docker-machine env smack-demo)"
+docker-machine start smack-demo
+```
 
-Project build directory is linked to hadoop container and available at `/target` `/dataset` folder. 
+### 2. Launch Containers
 
-Every time fatjar is rebuilt it is visible inside the container.
+```bash
+docker-compose up --build -d
+```
 
-For shutting down with deletion of all the data use `docker-compose down`
-      
+To stop and remove containers + volumes:
 
-Logging in to Docker container
-      
-      #container name could be used to login
-      docker exec -ti smackstack_hadoop_1 bash (in linux env)
-       
-      winpty docker  exec -ti  smackstack_hadoop_1 bash (in windows)
+```bash
+docker-compose down -v
+```
 
-##Initial Setup
-Download the yelp data tar file https://www.yelp.com/dataset_challenge/dataset
-untar the file and copy all the json file and store it 'data-set' folder in project root directory since it has been mounted in docker-compose-yml     
+### 3. Check Running Containers
 
-###Loading data to HDFS
-* winpty docker  exec -ti  smackstack_hadoop_1 bash
+```bash
+docker ps
+```
 
-* hadoop fs -put data-set/*.json .
-      
-###Create keyspace in cassandra database
-* winpty docker  exec -ti  smackstack_cassandra_1 bash
+### 4. Access Running Containers
 
-open cassandra shell by executing  'cqlsh' cmd
+- **Hadoop container:**
 
-create keyspace by running below command
+```bash
+docker exec -ti smackstack_hadoop_1 bash
+```
 
-* CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+- **Cassandra container:**
 
-      
-### To run and submit Spark Applications from this project the fatjar should be assembled via `mvn clean install` from the root of project dir.
+```bash
+docker exec -ti smackstack_cassandra_1 bash
+```
 
-            
-      spark-shell \
-      --master yarn \
-      --deploy-mode client \
-      --executor-cores 1 \
-      --num-executors 2 \
-      --jars /target/data-engg-smack-0.0.1-SNAPSHOT-shaded.jar \
-      --conf spark.cassandra.connection.host=cassandra
-	  --class packagename.classname	
-      
+---
 
-##List of applications
+## 📦 Initial Setup
 
-This application parse and load data from yelp json file through spark and load the data into cassandra keyspace and performs 
-some simple SparkQL query check on business , categories and tip tables created in yelp_data keyspace using spark  
+1. Download Yelp data from:  
+   https://www.yelp.com/dataset
 
-* __YelpBusinessDataLoader__ - This file loads yelp business and categories data in cassandra: `classname.method` 
-* __YelpTipDataLoader__ - This file loads yelp tip data in cassandra keyspace
-* __YelpTipQueryLoader__ - SparkSQL based implementation using DataFrame API and Cassandra as a data source
+2. Extract all `.json` files and place them in a folder called `data-set` in the root of this project.
 
-## Yelp Data Load steps 
-__Note__ - Load _Yelp business and categories_  and _Load Yelp tip data_  should be executed first else there would be come exception while running YelpTipQueryLoader
+3. Confirm volume mounts in your `docker-compose.yml` file.
 
-### Load Yelp business and categories 
+---
+
+## ⛓️ Load Data to HDFS
+
+```bash
+docker exec -ti smackstack_hadoop_1 bash
+hadoop fs -mkdir -p /yelp
+hadoop fs -put data-set/*.json /yelp/
+```
+
+---
+
+## 🗃️ Setup Cassandra
+
+```bash
+docker exec -ti smackstack_cassandra_1 bash
+cqlsh
+```
+
+Inside the Cassandra shell:
+
+```sql
+CREATE KEYSPACE yelp_data WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
+```
+
+---
+
+## 🚀 Build and Run Spark Applications
+
+Build the fat JAR:
+
+```bash
+mvn clean install
+```
+
+Now you can run Spark jobs using:
+
+```bash
 spark-shell \
   --master yarn \
+  --deploy-mode client \
+  --executor-cores 1 \
+  --num-executors 2 \
+  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
+  --conf spark.cassandra.connection.host=cassandra \
+  --class <fully.qualified.ClassName>
+```
+
+---
+
+## 📌 Available Spark Applications
+
+| Application            | Description                                                             |
+|------------------------|-------------------------------------------------------------------------|
+| `YelpBusinessDataLoader` | Loads Yelp business + category data into Cassandra                     |
+| `YelpTipDataLoader`      | Loads tip data into Cassandra                                           |
+| `YelpTipQueryLoader`     | Runs SparkSQL queries over loaded data using DataFrame API             |
+
+> ⚠️ Run loaders **before** query jobs, or you'll encounter missing table errors.
+
+---
+
+## 📊 Load & Query Yelp Data
+
+### Load Business Data
+
+```bash
+spark-submit \
   --class com.newyorker.data_engg.data_engg_smack.YelpBusinessDataLoader \
-  --deploy-mode client \
-  --executor-cores 1 \
-  --num-executors 2 \
-  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
-  --conf spark.cassandra.connection.host=cassandra
+  ...
+```
 
-###Load Yelp tip data 
+### Load Tip Data
 
-spark-shell \
-  --master yarn \
+```bash
+spark-submit \
   --class com.newyorker.data_engg.data_engg_smack.YelpTipDataLoader \
-  --deploy-mode client \
-  --executor-cores 1 \
-  --num-executors 2 \
-  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
-  --conf spark.cassandra.connection.host=cassandra
-  
-  
-###Query Yelp Data
+  ...
+```
 
-spark-shell \
-  --master yarn \
+### Query Tip Data
+
+```bash
+spark-submit \
   --class com.newyorker.data_engg.data_engg_smack.YelpTipQueryLoader \
-  --deploy-mode client \
-  --executor-cores 1 \
-  --num-executors 2 \
-  --jars target/data-engg-smack-0.0.1-SNAPSHOT.jar \
-  --conf spark.cassandra.connection.host=cassandra
+  ...
+```
 
-  
-  
-## Data cleanup
-      
-      #HDFS files
-      docker exec -ti smackstack_hadoop_1  bash 
-      hadoop fs -rm -r /*.json
-      
-      #Cassandra tables
-      docker exec -ti smackstack_cassandra_1 cqlsh
-      cqlsh> drop keyspace yelp_data;
-      
+---
+
+## 🧹 Data Cleanup
+
+### HDFS Cleanup
+
+```bash
+docker exec -ti smackstack_hadoop_1 bash
+hadoop fs -rm -r /yelp/*.json
+```
+
+### Cassandra Cleanup
+
+```bash
+docker exec -ti smackstack_cassandra_1 cqlsh
+DROP KEYSPACE yelp_data;
+```
+
+---
+
+## 📝 Notes & Improvements
+
+- Default credentials mentioned (`postgres/postgres`) may differ. Update `.env` if using `admin/admin123`.
+- Architecture diagrams should ideally be modeled in tools like **Lucidchart**, **draw.io**, or **Diagrams.net**.
+- Improve `.gitignore` to exclude:
+  ```gitignore
+  pddata_clean/
+  logs/
+  housing_dbt/
+  ```
