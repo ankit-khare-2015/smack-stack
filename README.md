@@ -186,5 +186,4 @@ DROP KEYSPACE yelp_data;
   ```gitignore
   pddata_clean/
   logs/
-  housing_dbt/
   ```
